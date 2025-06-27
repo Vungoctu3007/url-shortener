@@ -12,6 +12,7 @@ use Endroid\QrCode\Label\Font\OpenSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class LinkService extends BaseService implements LinkServiceInterface
 {
@@ -23,25 +24,38 @@ class LinkService extends BaseService implements LinkServiceInterface
         $this->linkRepo = $linkRepo;
     }
 
+    private function paginateArgument($request) {
+        return [
+            'perpage' => $request->input('perpage') ?? 10,
+            'keyword' => [
+                'search' => $request->input('keyword') ?? '',
+            ],
+            'condition' => [
+                'active' => $request->input('active') ?? ''
+            ],
+            'select' => ['*'],
+            'orderBy' => $request->input('sort') ? explode(',', $request->input('sort')) : ['id', 'asc'],
+        ];
+    }
+
+    public function paginate($request) {
+        $params = $this->paginateArgument($request);
+        $links = $this->linkRepo->pagination($params);
+        return $links;
+    }
+
     public function create(array $data)
     {
-        Log::info('🔗 [ShortLink] Bắt đầu tạo short link');
+        if (!isset($data['expires_at'])) {
+            $data['expires_at'] = now()->addDays(7);
+        }
 
-        // 1. Tạo link trong DB
         $link = $this->linkRepo->create($data);
-        Log::debug('✅ [ShortLink] Link đã được tạo:', $link->toArray());
 
-        // 2. Tạo short URL
         $shortUrl = config('app.url') . '/' . $link->slug;
-        Log::debug("🔗 [ShortLink] Short URL: {$shortUrl}");
-
-        // 3. Chuẩn bị tạo QR code
         $fileName = 'qr_' . $link->slug . '.png';
-        $localPath = storage_path('app/temp/' . $fileName);
-        Log::debug("🖼️ [QR] File sẽ được lưu tại: {$localPath}");
 
         try {
-            // 4. Build QR
             $builder = new Builder(
                 writer: new PngWriter(),
                 writerOptions: [],
@@ -61,24 +75,25 @@ class LinkService extends BaseService implements LinkServiceInterface
             );
 
             $result = $builder->build();
-            $result->saveToFile($localPath);
-            Log::info('✅ [QR] QR code đã được tạo và lưu thành công');
+            Storage::disk('public')->put('qr/' . $fileName, $result->getString());
+            $link->qr_url = asset('storage/qr/' . $fileName);
+            $link->save();
+
         } catch (\Exception $e) {
-            Log::error('❌ [QR] Lỗi khi tạo QR code: ' . $e->getMessage());
+            Log::error('[QR] Lỗi khi tạo QR code: ' . $e->getMessage());
             throw $e;
         }
 
         return $link;
     }
 
-
     public function findBySlug(string $slug)
     {
         return $this->linkRepo->findBySlug($slug);
     }
 
-    public function getOriginalUrl(string $slug): ?string
+    public function getOriginalLink(string $slug): ?string
     {
-        return $this->linkRepo->getOriginalUrl($slug);
+        return $this->linkRepo->getOriginalLink($slug);
     }
 }

@@ -38,7 +38,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Login success'])->withCookie(
             cookie('access_token', $token, 60, '/', null, true, true, false, 'Strict')
         )->withCookie(
-                cookie('refresh_token', $refreshToken, 60 * 24 * 30, '/', null, true, true, false, 'Strict')
+                cookie('refresh_token', $refreshToken, 60 * 24 * 30, '/', null, true, true, false, 'None')
             );
     }
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
             $user = JWTAuth::setToken($refreshToken)->authenticate();
             $newAccessToken = JWTAuth::fromUser($user);
             return response()->json(['message' => 'Access token refreshed'])->withCookie(
-                cookie('access_token', $newAccessToken, 60, '/', null, true, true, false, 'Strict')
+                cookie('access_token', $newAccessToken, 60, '/', null, true, true, false, 'None')
             );
         } catch (\Exception $e) {
             return response()->json(['error' => 'Invalid token'], 401);

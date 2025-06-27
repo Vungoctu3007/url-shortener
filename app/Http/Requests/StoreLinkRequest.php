@@ -24,7 +24,7 @@ class StoreLinkRequest extends FormRequest
         return [
             'target' => 'required|url',
             'user_id' => 'required|exists:users,id',
-            'slug' => 'nullable|string|unique:links,slug',
+            'slug' => 'nullable|string|min:6|unique:links,slug',
         ];
     }
 }
