@@ -2,16 +2,24 @@ import React from "react";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
-const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return (
-    <div className="flex flex-col min-h-screen bg-white text-gray-900 dark:bg-[#0b0e17] dark:text-gray-100 transition-colors duration-300">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
-      </div>
-    </div>
-  );
+interface MainLayoutProps {
+    children: React.ReactNode;
+    sidebar: React.ReactNode;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children, sidebar }) => {
+    return (
+        <div className="flex h-screen bg-white text-gray-900 overflow-hidden">
+            <div className="h-full">{sidebar}</div>
+            <div className="flex flex-col flex-1 overflow-hidden">
+                <Header />
+                <main className="flex-1 overflow-y-auto px-6 py-4 bg-gray-50">
+                    {children}
+                </main>
+                <Footer />
+            </div>
+        </div>
+    );
 };
 
 export default MainLayout;

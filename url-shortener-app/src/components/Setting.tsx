@@ -1,5 +1,4 @@
 import React from "react";
-import { ModeToggle } from "@/components/mode-toggle";
 import { TrashIcon, ArrowRightOnRectangleIcon, GlobeAltIcon, AdjustmentsHorizontalIcon } from "@heroicons/react/24/outline";
 
 const Settings: React.FC = () => {
@@ -15,52 +14,53 @@ const Settings: React.FC = () => {
 
   return (
     <div className="w-full max-w-2xl mx-auto p-4 space-y-6">
-      <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">⚙️ Settings</h2>
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">⚙️ Settings</h2>
 
-      {/* Theme */}
-      <div className="flex items-center justify-between bg-gray-100 dark:bg-[#121623] p-4 rounded-lg shadow">
+      <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow">
         <div className="flex items-center gap-3">
           <AdjustmentsHorizontalIcon className="w-6 h-6 text-blue-500" />
-          <span className="font-medium text-gray-800 dark:text-white">Theme</span>
+          <span className="font-medium text-gray-800">Theme</span>
         </div>
-        <ModeToggle />
       </div>
 
-      {/* Language */}
-      <div className="flex items-center justify-between bg-gray-100 dark:bg-[#121623] p-4 rounded-lg shadow">
+      <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow">
         <div className="flex items-center gap-3">
           <GlobeAltIcon className="w-6 h-6 text-green-500" />
-          <span className="font-medium text-gray-800 dark:text-white">Language</span>
+          <span className="font-medium text-gray-800">Language</span>
         </div>
-        <select className="bg-transparent border border-gray-300 dark:border-[#2e3446] rounded px-3 py-1 text-gray-800 dark:text-white">
+        <select className="bg-white border border-gray-300 rounded px-3 py-1 text-gray-800">
           <option>English</option>
           <option>Vietnamese</option>
         </select>
       </div>
 
-      {/* Delete all data */}
-      <div className="flex items-center justify-between bg-gray-100 dark:bg-[#121623] p-4 rounded-lg shadow">
+      <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow">
         <div className="flex items-center gap-3">
           <TrashIcon className="w-6 h-6 text-red-500" />
-          <span className="font-medium text-gray-800 dark:text-white">Delete all data</span>
+          <span className="font-medium text-gray-800">Delete all data</span>
         </div>
-        <button onClick={handleDeleteAll} className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">
+        <button
+          onClick={handleDeleteAll}
+          className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        >
           Delete
         </button>
       </div>
 
-      {/* Logout */}
-      <div className="flex items-center justify-between bg-gray-100 dark:bg-[#121623] p-4 rounded-lg shadow">
+      <div className="flex items-center justify-between bg-gray-100 p-4 rounded-lg shadow">
         <div className="flex items-center gap-3">
-          <ArrowRightOnRectangleIcon className="w-6 h-6 text-yellow-500" />
-          <span className="font-medium text-gray-800 dark:text-white">Logout</span>
+          <span className="font-medium text-gray-800">Logout</span>
         </div>
-        <button onClick={handleLogout} className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+        <button
+          onClick={handleLogout}
+          className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+        >
           Logout
         </button>
       </div>
     </div>
   );
+
 };
 
 export default Settings;

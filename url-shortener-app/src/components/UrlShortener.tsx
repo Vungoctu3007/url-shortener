@@ -70,11 +70,11 @@ const UrlShortener: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center py-10 px-4 md:px-8 bg-white dark:bg-[#0b0e17] transition-colors">
+        <div className="flex flex-col items-center justify-center py-10 px-4 md:px-8 bg-white transition-colors">
             <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-pink-500 to-blue-500 text-transparent bg-clip-text text-center mb-5">
                 Shorten Your Long Links
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mb-10 text-center max-w-2xl">
+            <p className="text-gray-600 mb-10 text-center max-w-2xl">
                 Linkly is an efficient and easy-to-use URL shortening service.
             </p>
 
@@ -83,26 +83,22 @@ const UrlShortener: React.FC = () => {
                 <div className="flex flex-col w-full md:flex-[2]">
                     <div
                         className={clsx(
-                            "flex items-center px-4 py-2 rounded-xl transition-colors bg-gray-100 dark:bg-[#121623] border",
-                            errors.target
-                                ? "border-red-500"
-                                : "border-gray-300 dark:border-[#2e3446]"
+                            "flex items-center px-4 py-2 rounded-xl transition-colors bg-gray-100 border",
+                            errors.target ? "border-red-500" : "border-gray-300"
                         )}
                     >
                         <LinkIcon className="w-5 h-5 text-gray-400 mr-2 hidden md:block" />
                         <input
                             type="text"
                             placeholder="Enter the link here"
-                            className="w-full bg-transparent text-gray-900 dark:text-white focus:outline-none text-sm md:text-base"
+                            className="w-full bg-transparent text-gray-900 focus:outline-none text-sm md:text-base"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                         />
                     </div>
                     <div className="min-h-[1.25rem] mt-1 px-1">
                         {errors.target && (
-                            <p className="text-red-500 text-xs">
-                                {errors.target}
-                            </p>
+                            <p className="text-red-500 text-xs">{errors.target}</p>
                         )}
                     </div>
                 </div>
@@ -111,25 +107,21 @@ const UrlShortener: React.FC = () => {
                 <div className="flex flex-col w-full md:flex-[1]">
                     <div
                         className={clsx(
-                            "flex items-center px-4 py-2 rounded-xl transition-colors bg-gray-100 dark:bg-[#121623] border",
-                            errors.slug
-                                ? "border-red-500"
-                                : "border-gray-300 dark:border-[#2e3446]"
+                            "flex items-center px-4 py-2 rounded-xl transition-colors bg-gray-100 border",
+                            errors.slug ? "border-red-500" : "border-gray-300"
                         )}
                     >
                         <input
                             type="text"
                             placeholder="Custom alias (optional)"
-                            className="w-full bg-transparent text-gray-900 dark:text-white focus:outline-none text-sm md:text-base"
+                            className="w-full bg-transparent text-gray-900 focus:outline-none text-sm md:text-base"
                             value={slug}
                             onChange={(e) => setSlug(e.target.value)}
                         />
                     </div>
                     <div className="min-h-[1.25rem] mt-1 px-1">
                         {errors.slug && (
-                            <p className="text-red-500 text-xs">
-                                {errors.slug}
-                            </p>
+                            <p className="text-red-500 text-xs">{errors.slug}</p>
                         )}
                     </div>
                 </div>
@@ -164,15 +156,11 @@ const UrlShortener: React.FC = () => {
                                     d="M4 12a8 8 0 018-8v8z"
                                 />
                             </svg>
-                            <span className="hidden sm:inline">
-                                Shortening...
-                            </span>
+                            <span className="hidden sm:inline">Shortening...</span>
                         </>
                     ) : (
                         <>
-                            <span className="hidden sm:inline">
-                                Shorten Now!
-                            </span>
+                            <span className="hidden sm:inline">Shorten Now!</span>
                             <PaperAirplaneIcon className="w-5 h-5 rotate-90" />
                         </>
                     )}
@@ -181,7 +169,7 @@ const UrlShortener: React.FC = () => {
 
             {/* Result section */}
             {shortUrl && (
-                <div className="mt-8 flex flex-col items-center gap-4 bg-gray-100 dark:bg-[#121623] text-gray-900 dark:text-white px-6 py-4 rounded-lg shadow transition-colors max-w-xl w-full">
+                <div className="mt-8 flex flex-col items-center gap-4 bg-gray-100 text-gray-900 px-6 py-4 rounded-lg shadow transition-colors max-w-xl w-full">
                     <div className="flex items-center gap-3">
                         <CheckCircleIcon className="w-6 h-6 text-green-500" />
                         <a
@@ -223,9 +211,9 @@ const UrlShortener: React.FC = () => {
                             </button>
 
                             {showDropdown && (
-                                <div className="absolute top-12 right-0 z-10 bg-white dark:bg-[#1a1e2d] p-2 rounded-lg shadow-md border w-48 flex flex-col gap-2">
+                                <div className="absolute top-12 right-0 z-10 bg-white p-2 rounded-lg shadow-md border w-48 flex flex-col gap-2">
                                     <FacebookShareButton url={shortUrl}>
-                                        <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2f3e] p-2 rounded-md">
+                                        <div className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-md">
                                             <FacebookIcon size={24} round />
                                             <span className="text-sm">
                                                 Facebook
@@ -234,7 +222,7 @@ const UrlShortener: React.FC = () => {
                                     </FacebookShareButton>
 
                                     <TwitterShareButton url={shortUrl}>
-                                        <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2f3e] p-2 rounded-md">
+                                        <div className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-md">
                                             <TwitterIcon size={24} round />
                                             <span className="text-sm">
                                                 Twitter
@@ -243,7 +231,7 @@ const UrlShortener: React.FC = () => {
                                     </TwitterShareButton>
 
                                     <LinkedinShareButton url={shortUrl}>
-                                        <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2f3e] p-2 rounded-md">
+                                        <div className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-md">
                                             <LinkedinIcon size={24} round />
                                             <span className="text-sm">
                                                 LinkedIn
@@ -252,16 +240,14 @@ const UrlShortener: React.FC = () => {
                                     </LinkedinShareButton>
 
                                     <RedditShareButton url={shortUrl}>
-                                        <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2f3e] p-2 rounded-md">
+                                        <div className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-md">
                                             <RedditIcon size={24} round />
-                                            <span className="text-sm">
-                                                Reddit
-                                            </span>
+                                            <span className="text-sm">Reddit</span>
                                         </div>
                                     </RedditShareButton>
 
                                     <TelegramShareButton url={shortUrl}>
-                                        <div className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2f3e] p-2 rounded-md">
+                                        <div className="flex items-center gap-2 hover:bg-gray-100 p-2 rounded-md">
                                             <TelegramIcon size={24} round />
                                             <span className="text-sm">
                                                 Telegram
@@ -291,6 +277,8 @@ const UrlShortener: React.FC = () => {
             )}
         </div>
     );
+
 };
 
 export default UrlShortener;
+

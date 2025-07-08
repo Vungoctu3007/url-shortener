@@ -1,95 +1,128 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  ClockIcon,
-  ChartBarIcon,
-  CursorArrowRaysIcon,
-  Cog6ToothIcon,
+    HomeIcon,
+    LinkIcon,
+    ChartBarIcon,
+    CursorArrowRaysIcon,
+    Cog6ToothIcon,
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    PlusIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-import HistoryTable from "@/components/LinkHistoryTable";
-import Statistics from "@/components/Statistics";
-import ClickStream from "@/components/ClickStream";
-import Settings from "./Setting";
 
 interface MenuItem {
-  label: string;
-  icon: React.ReactNode;
-  key: string;
-  component: React.ReactNode;
+    label: string;
+    icon: React.ReactNode;
+    key: string;
 }
 
 const menu: MenuItem[] = [
-  {
-    label: "History",
-    icon: <ClockIcon className="w-5 h-5" />,
-    key: "history",
-    component: <HistoryTable />,
-  },
-  {
-    label: "Statistics",
-    icon: <ChartBarIcon className="w-5 h-5" />,
-    key: "statistics",
-    component: <Statistics />,
-  },
-  {
-    label: "Click Stream",
-    icon: <CursorArrowRaysIcon className="w-5 h-5" />,
-    key: "clickstream",
-    component: <ClickStream />,
-  },
-  {
-    label: "Settings",
-    icon: <Cog6ToothIcon className="w-5 h-5" />,
-    key: "settings",
-    component: <Settings />,
-  },
+    {
+        label: "Home",
+        icon: <HomeIcon className="w-5 h-5" />,
+        key: "home",
+    },
+    {
+        label: "Link",
+        icon: <LinkIcon className="w-5 h-5" />,
+        key: "link",
+    },
+    {
+        label: "Statistics",
+        icon: <ChartBarIcon className="w-5 h-5" />,
+        key: "statistics",
+    },
+    {
+        label: "Click Stream",
+        icon: <CursorArrowRaysIcon className="w-5 h-5" />,
+        key: "clickstream",
+    },
 ];
 
 interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (key: string) => void;
+    activeTab: string;
+    setActiveTab: (key: string) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
-  const activeItem = menu.find((item) => item.key === activeTab);
+    const [collapsed, setCollapsed] = useState(false);
 
-  return (
-    <div className="flex flex-col bg-white dark:bg-[#0b0e17] transition-colors">
-      {/* Menu */}
-      <div className="flex justify-center items-center bg-gray-100 dark:bg-[#121623] py-4 border-b border-gray-300 dark:border-[#2e3446]">
-        <div className="flex flex-wrap md:flex-nowrap justify-center gap-6 md:gap-12">
-          {menu.map((item) => (
-            <div
-              key={item.key}
-              className={clsx(
-                "flex flex-col items-center justify-center cursor-pointer group transition-colors",
-                activeTab === item.key
-                  ? "text-blue-600 dark:text-white"
-                  : "text-gray-500 dark:text-gray-400"
-              )}
-              onClick={() => setActiveTab(item.key)}
-            >
-              <div className="group-hover:scale-110 transition-transform">
-                {item.icon}
-              </div>
-              <span className="mt-1 text-sm font-medium">{item.label}</span>
-              <div
-                className={clsx(
-                  "h-1 w-8 rounded-full mt-2 transition-all duration-300",
-                  activeTab === item.key ? "bg-blue-500" : "bg-transparent"
+    return (
+        <div
+            className={clsx(
+                "flex flex-col border-r border-gray-200 transition-all duration-300 h-screen",
+                collapsed ? "w-16" : "w-64"
+            )}
+        >
+            <div className="flex items-center justify-between p-4">
+                {!collapsed && (
+                    <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-blue-600 text-transparent bg-clip-text select-none">
+                        Linkly<sup className="text-sm align-top ml-1">®</sup>
+                    </div>
                 )}
-              />
+                <button
+                    onClick={() => setCollapsed(!collapsed)}
+                    className="p-1 rounded hover:bg-gray-100"
+                >
+                    {collapsed ? (
+                        <ChevronRightIcon className="w-5 h-5 text-gray-500" />
+                    ) : (
+                        <ChevronLeftIcon className="w-5 h-5 text-gray-500" />
+                    )}
+                </button>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="flex flex-col">
+                <button className="m-3 bg-blue-800 text-white text-sm font-semibold py-2 px-3 rounded-sm hover:bg-blue-700 flex items-center justify-center gap-2">
+                    <PlusIcon className="w-5 h-5" />
+                    {!collapsed && (
+                        <span className="font-semibold">Create new</span>
+                    )}
+                </button>
 
-      {/* Nội dung component */}
-      <div className="flex-1 flex items-center justify-center">
-        {activeItem?.component}
-      </div>
-    </div>
-  );
+                <hr className="mx-3 my-2 border-gray-300" />
+
+                <nav className="flex-1 space-y-1">
+                    {menu.map((item) => (
+                        <div
+                            key={item.key}
+                            className={clsx(
+                                "flex items-center gap-4 px-6 py-3 cursor-pointer hover:bg-gray-100 transition-colors",
+                                activeTab === item.key
+                                    ? "bg-blue-50 text-blue-600 font-semibold"
+                                    : "text-gray-700"
+                            )}
+                            onClick={() => setActiveTab(item.key)}
+                        >
+                            {item.icon}
+                            {!collapsed && (
+                                <span className="font-semibold">
+                                    {item.label}
+                                </span>
+                            )}
+                        </div>
+                    ))}
+
+                    <hr className="mx-3 my-2 border-gray-300" />
+
+                    <div
+                        className={clsx(
+                            "flex items-center gap-4 px-6 py-3 cursor-pointer hover:bg-gray-100 transition-colors",
+                            activeTab === "settings"
+                                ? "bg-blue-50 text-blue-600 font-semibold"
+                                : "text-gray-700"
+                        )}
+                        onClick={() => setActiveTab("settings")}
+                    >
+                        <Cog6ToothIcon className="w-5 h-5" />
+                        {!collapsed && (
+                            <span className="font-semibold">Settings</span>
+                        )}
+                    </div>
+                </nav>
+            </div>
+        </div>
+    );
 };
 
 export default Sidebar;

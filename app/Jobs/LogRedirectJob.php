@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\RedirectLogged;
 use App\Models\Redirect;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -22,12 +23,15 @@ class LogRedirectJob implements ShouldQueue
 
     public function handle(): void
     {
-        Redirect::create([
+        $redirect = Redirect::create([
             'link_id'    => $this->data['link_id'],
             'ip_address' => $this->data['ip_address'],
             'user_agent' => $this->data['user_agent'],
             'referrer'   => $this->data['referrer'],
-            'country'    => $this->data['country'], 
+            'country'    => $this->data['country'],
         ]);
+
+        event(new RedirectLogged($redirect));
     }
+
 }

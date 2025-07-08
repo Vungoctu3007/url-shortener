@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\LinkController;
+use App\Http\Controllers\Api\V1\RedirectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,11 @@ Route::prefix('v1')->group(function () {
          * LINK
          */
         Route::apiResource('links', LinkController::class);
+
+        /**
+         * REDIRECT
+         */
+        Route::get('/redirects', [RedirectController::class, 'index']);
     });
 
 });
