@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api\V1\Link;
 
 use App\Http\Controllers\Controller;
 use App\Services\RedirectService;
@@ -36,7 +36,6 @@ class RedirectController extends Controller
                 'data' => $redirects,
             ]);
         } catch (\Throwable $e) {
-            // Ghi log lỗi để debug (nếu cần)
             \Log::error("Error fetching user redirects", [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),

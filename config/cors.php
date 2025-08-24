@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://localhost:5173', 'https://url-shortener.ddev.site'],
 
     'allowed_origins_patterns' => [],
 

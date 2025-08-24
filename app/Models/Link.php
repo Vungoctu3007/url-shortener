@@ -13,6 +13,7 @@ class Link extends Model
 
     protected $fillable = [
         'slug',
+        'title',
         'target',
         'user_id',
         'qr_url',

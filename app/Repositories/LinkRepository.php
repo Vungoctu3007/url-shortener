@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Link;
 use App\Interfaces\Repositories\LinkRepositoryInterface;
+use Illuminate\Support\Facades\Log;
 use Vinkla\Hashids\Facades\Hashids;
 use Illuminate\Support\Str;
 
@@ -20,6 +21,16 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
 
         $query->select($params['select'] ?? ['*']);
 
+        // Add search functionality
+        $keyword = $params['keyword']['search'] ?? '';
+        if (!empty($keyword)) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('slug', 'like', "%{$keyword}%")
+                    ->orWhere('target', 'like', "%{$keyword}%")
+                    ->orWhere('title', 'like', "%{$keyword}%");
+            });
+        }
+
         $condition = $params['condition'] ?? [];
         if (is_array($condition) && count($condition)) {
             foreach ($condition as $key => $val) {
@@ -32,6 +43,9 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
                                 ->orWhere('expires_at', '<=', now());
                         });
                     }
+                } elseif ($key === 'user_id') {
+                    // Filter by user - MOST IMPORTANT
+                    $query->where('user_id', $val);
                 } elseif ($val !== 0 && !empty($val)) {
                     $query->where($key, $val);
                 }
@@ -49,7 +63,6 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
         return $query->get();
     }
 
-
     public function create(array $data)
     {
         if (empty($data['slug'])) {
@@ -60,7 +73,7 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
             $data['slug'] = $slug;
         } else {
             if ($this->model->where('slug', $data['slug'])->exists()) {
-                throw new \Exception('Slug đã tồn tại');
+                throw new \Exception('Slug already exists');
             }
         }
 
@@ -71,6 +84,11 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
             'expires_at' => $data['expires_at']
         ];
 
+        if (!empty($data['title'])) {
+            Log::info($data['title']);
+            $linkData['title'] = $data['title'];
+        }
+
         if (!empty($data['qr_url'])) {
             $linkData['qr_url'] = $data['qr_url'];
         }
@@ -80,10 +98,58 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
         return $link;
     }
 
+    public function update($id, array $data)
+    {
+        $link = $this->model->find($id);
+
+        if (!$link) {
+            return null;
+        }
+
+        // Handle slug update with uniqueness check
+        if (isset($data['slug']) && $data['slug'] !== $link->slug) {
+            if ($this->model->where('slug', $data['slug'])->where('id', '!=', $id)->exists()) {
+                throw new \Exception('Slug already exists');
+            }
+        }
+
+        $link->update($data);
+
+        return $link->fresh();
+    }
+
+    public function find($id)
+    {
+        return $this->model->find($id);
+    }
+
+    public function delete($id): bool
+    {
+        $link = $this->model->find($id);
+
+        if (!$link) {
+            return false;
+        }
+
+        return $link->delete();
+    }
+
+
+    public function bulkDelete(array $ids): int
+    {
+        return $this->model->whereIn('id', $ids)->delete();
+    }
+
+    public function findMany(array $ids)
+    {
+        return $this->model->whereIn('id', $ids)->get();
+    }
+
     public function findBySlug(string $slug)
     {
         return $this->model->where('slug', $slug)->first();
     }
+
     public function getOriginalLink(string $slug): ?string
     {
         return $this->model->where('slug', $slug)->value('target');

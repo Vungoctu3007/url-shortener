@@ -1,0 +1,12 @@
+version: '3.6'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: ddev-${DDEV_SITENAME}-redis
+    # Không publish port để tránh trùng
+    # ports:
+    #   - "6379:6379"
+    labels:
+      com.ddev.site-name: ${DDEV_SITENAME}
+      com.ddev.approot: ${DDEV_APPROOT}

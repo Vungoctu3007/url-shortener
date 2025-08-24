@@ -1,37 +1,29 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "@/pages/mainLayout";
 import Sidebar from "@/components/SideBar";
 import UrlShortener from "@/components/UrlShortener";
-import HistoryTable from "@/components/LinkHistoryTable";
-import Statistics from "@/components/Statistics";
-import ClickStream from "@/components/ClickStream";
+import LinkPage from "@/pages/LinkPage";
+import Statistics from "@/pages/StatisticsPage";
+import ClickStream from "@/pages/ClickStreamPage";
 import Settings from "@/components/Setting";
+import DetailLinkPage from "@/pages/detailLinkPage";
+import SocialCallback from "@/pages/SocialCallback";
 
 const AppRoutes: React.FC = () => {
-    const [activeTab, setActiveTab] = useState(() => {
-        return localStorage.getItem("linkly-active-tab") || "home";
-    });
-
-    useEffect(() => {
-        localStorage.setItem("linkly-active-tab", activeTab);
-    }, [activeTab]);
-
     return (
         <BrowserRouter>
-            <MainLayout
-                sidebar={
-                    <Sidebar
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}
-                    />
-                }
-            >
-                {activeTab === "home" && <UrlShortener />}
-                {activeTab === "link" && <HistoryTable />}
-                {activeTab === "statistics" && <Statistics />}
-                {activeTab === "clickstream" && <ClickStream />}
-                {activeTab === "settings" && <Settings />}
+            <MainLayout sidebar={<Sidebar />}>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/home" replace />} />
+                    <Route path="/home" element={<UrlShortener />} />
+                    <Route path="/link" element={<LinkPage />} />
+                    <Route path="/statistics" element={<Statistics />} />
+                    <Route path="/clickstream" element={<ClickStream />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/link/:id" element={<DetailLinkPage />} />
+                    <Route path="/auth/callback" element={<SocialCallback />} />
+                </Routes>
             </MainLayout>
         </BrowserRouter>
     );

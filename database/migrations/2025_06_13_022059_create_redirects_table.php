@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('redirects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('link_id')->constrained()->onDelete('cascade');
-
             $table->ipAddress('ip_address')->nullable();
             $table->string('user_agent')->nullable();
             $table->string('referrer')->nullable();

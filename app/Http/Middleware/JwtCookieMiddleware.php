@@ -25,7 +25,7 @@ class JwtCookieMiddleware
             }
 
             // $request->headers->set('Authorization', 'Bearer ' . $token);
-            JWTAuth::setToken($token)->authenticate();  // Thêm dấu ()
+            JWTAuth::setToken($token)->authenticate();  
         } catch (Exception $e) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }

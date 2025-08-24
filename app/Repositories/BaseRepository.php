@@ -14,8 +14,21 @@ class BaseRepository implements BaseRepositoryInterface {
 
     public function all() { return $this->model->all(); }
 
-    public function find($id) { return $this->model->findOrFail($id); }
+    public function find($id)
+    {
+        return $this->model->find($id);
+    }
 
+    public function delete($id): bool
+    {
+        $model = $this->model->find($id);
+
+        if (!$model) {
+            return false;
+        }
+
+        return $model->delete();
+    }
     public function create(array $attributes) { return $this->model->create($attributes); }
 
     public function update($id, array $attributes)
@@ -23,11 +36,6 @@ class BaseRepository implements BaseRepositoryInterface {
         $model = $this->find($id);
         $model->update($attributes);
         return $model;
-    }
-
-    public function delete($id)
-    {
-        return $this->model->destroy($id);
     }
 
     public function pagination($params = []) {

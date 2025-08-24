@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     HomeIcon,
     LinkIcon,
@@ -8,118 +9,232 @@ import {
     ChevronLeftIcon,
     ChevronRightIcon,
     PlusIcon,
+    XMarkIcon,
+    SparklesIcon,
+    ClockIcon,
 } from "@heroicons/react/24/outline";
+import {
+    HomeIcon as HomeIconSolid,
+    LinkIcon as LinkIconSolid,
+    ChartBarIcon as ChartBarIconSolid,
+    CursorArrowRaysIcon as CursorArrowRaysIconSolid,
+    Cog6ToothIcon as Cog6ToothIconSolid,
+} from "@heroicons/react/24/solid";
 import clsx from "clsx";
 
 interface MenuItem {
     label: string;
     icon: React.ReactNode;
-    key: string;
+    iconSolid: React.ReactNode;
+    path: string;
+    badge?: number | string;
+    description?: string;
 }
 
 const menu: MenuItem[] = [
     {
-        label: "Home",
+        label: "Dashboard",
         icon: <HomeIcon className="w-5 h-5" />,
-        key: "home",
+        iconSolid: <HomeIconSolid className="w-5 h-5" />,
+        path: "/home",
+        description: "Overview and analytics"
     },
     {
-        label: "Link",
+        label: "My Links",
         icon: <LinkIcon className="w-5 h-5" />,
-        key: "link",
+        iconSolid: <LinkIconSolid className="w-5 h-5" />,
+        path: "/link",
+        description: "Manage your links"
     },
     {
-        label: "Statistics",
+        label: "Analytics",
         icon: <ChartBarIcon className="w-5 h-5" />,
-        key: "statistics",
+        iconSolid: <ChartBarIconSolid className="w-5 h-5" />,
+        path: "/statistics",
+        description: "Detailed insights"
     },
     {
         label: "Click Stream",
         icon: <CursorArrowRaysIcon className="w-5 h-5" />,
-        key: "clickstream",
+        iconSolid: <CursorArrowRaysIconSolid className="w-5 h-5" />,
+        path: "/clickstream",
+        badge: "New",
+        description: "Real-time click data"
+    },
+    {
+        label: "Settings",
+        icon: <Cog6ToothIcon className="w-5 h-5" />,
+        iconSolid: <Cog6ToothIconSolid className="w-5 h-5" />,
+        path: "/settings",
+        description: "Account preferences"
     },
 ];
 
 interface SidebarProps {
-    activeTab: string;
-    setActiveTab: (key: string) => void;
+    onClose?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab }) => {
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
+    const location = useLocation();
+    const navigate = useNavigate();
     const [collapsed, setCollapsed] = useState(false);
+
+    const handleNavigation = (path: string) => {
+        navigate(path);
+        if (onClose) onClose(); // Close mobile sidebar
+    };
+
+    const toggleCollapsed = () => {
+        setCollapsed(!collapsed);
+    };
 
     return (
         <div
             className={clsx(
-                "flex flex-col border-r border-gray-200 transition-all duration-300 h-screen",
+                "flex flex-col bg-white border-r border-gray-200/60 transition-all duration-300 h-screen shadow-sm",
                 collapsed ? "w-16" : "w-64"
             )}
         >
-            <div className="flex items-center justify-between p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
                 {!collapsed && (
-                    <div className="text-2xl font-bold bg-gradient-to-r from-pink-400 to-blue-600 text-transparent bg-clip-text select-none">
-                        Linkly<sup className="text-sm align-top ml-1">®</sup>
+                    <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                            <SparklesIcon className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                                Linkly
+                            </div>
+                            <div className="text-xs text-gray-500 -mt-1">Pro Plan</div>
+                        </div>
                     </div>
                 )}
-                <button
-                    onClick={() => setCollapsed(!collapsed)}
-                    className="p-1 rounded hover:bg-gray-100"
-                >
-                    {collapsed ? (
-                        <ChevronRightIcon className="w-5 h-5 text-gray-500" />
-                    ) : (
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-500" />
+
+                <div className="flex items-center gap-1">
+                    {/* Close button for mobile */}
+                    {onClose && (
+                        <button
+                            onClick={onClose}
+                            className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                        >
+                            <XMarkIcon className="w-5 h-5 text-gray-500" />
+                        </button>
+                    )}
+
+                    {/* Collapse toggle for desktop */}
+                    <button
+                        onClick={toggleCollapsed}
+                        className="hidden lg:flex p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                        {collapsed ? (
+                            <ChevronRightIcon className="w-4 h-4 text-gray-500" />
+                        ) : (
+                            <ChevronLeftIcon className="w-4 h-4 text-gray-500" />
+                        )}
+                    </button>
+                </div>
+            </div>
+
+            {/* Create new button */}
+            <div className="p-3">
+                <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2 group">
+                    <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
+                    {!collapsed && (
+                        <span>Create New Link</span>
                     )}
                 </button>
             </div>
-            <div className="flex flex-col">
-                <button className="m-3 bg-blue-800 text-white text-sm font-semibold py-2 px-3 rounded-sm hover:bg-blue-700 flex items-center justify-center gap-2">
-                    <PlusIcon className="w-5 h-5" />
-                    {!collapsed && (
-                        <span className="font-semibold">Create new</span>
-                    )}
-                </button>
 
-                <hr className="mx-3 my-2 border-gray-300" />
+            {/* Quick stats - when not collapsed */}
+            {!collapsed && (
+                <div className="mx-3 mb-3 p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg">
+                    <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600">Total Clicks</span>
+                        <span className="font-semibold text-gray-900">2,847</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm mt-1">
+                        <span className="text-gray-600">This Month</span>
+                        <span className="font-semibold text-green-600">+23%</span>
+                    </div>
+                </div>
+            )}
 
-                <nav className="flex-1 space-y-1">
-                    {menu.map((item) => (
+            {/* Navigation */}
+            <nav className="flex-1 px-2 space-y-1 overflow-y-auto">
+                {menu.map((item) => {
+                    const isActive = location.pathname === item.path;
+
+                    return (
                         <div
-                            key={item.key}
+                            key={item.path}
+                            onClick={() => handleNavigation(item.path)}
                             className={clsx(
-                                "flex items-center gap-4 px-6 py-3 cursor-pointer hover:bg-gray-100 transition-colors",
-                                activeTab === item.key
-                                    ? "bg-blue-50 text-blue-600 font-semibold"
-                                    : "text-gray-700"
+                                "group relative flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all duration-200",
+                                isActive
+                                    ? "bg-gradient-to-r from-blue-50 to-purple-50 text-blue-600 shadow-sm border border-blue-100"
+                                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
                             )}
-                            onClick={() => setActiveTab(item.key)}
                         >
-                            {item.icon}
+                            <div className="flex-shrink-0">
+                                {isActive ? item.iconSolid : item.icon}
+                            </div>
+
                             {!collapsed && (
-                                <span className="font-semibold">
+                                <>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium text-sm truncate">
+                                                {item.label}
+                                            </span>
+                                            {item.badge && (
+                                                <span className={clsx(
+                                                    "text-xs px-2 py-0.5 rounded-full font-medium",
+                                                    typeof item.badge === 'number'
+                                                        ? "bg-gray-100 text-gray-600"
+                                                        : "bg-green-100 text-green-600"
+                                                )}>
+                                                    {item.badge}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {item.description && !isActive && (
+                                            <p className="text-xs text-gray-500 mt-0.5 truncate">
+                                                {item.description}
+                                            </p>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Tooltip for collapsed state */}
+                            {collapsed && (
+                                <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
                                     {item.label}
-                                </span>
+                                    {item.badge && (
+                                        <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">
+                                            {item.badge}
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </div>
-                    ))}
+                    );
+                })}
+            </nav>
 
-                    <hr className="mx-3 my-2 border-gray-300" />
-
-                    <div
-                        className={clsx(
-                            "flex items-center gap-4 px-6 py-3 cursor-pointer hover:bg-gray-100 transition-colors",
-                            activeTab === "settings"
-                                ? "bg-blue-50 text-blue-600 font-semibold"
-                                : "text-gray-700"
-                        )}
-                        onClick={() => setActiveTab("settings")}
-                    >
-                        <Cog6ToothIcon className="w-5 h-5" />
-                        {!collapsed && (
-                            <span className="font-semibold">Settings</span>
-                        )}
+            {/* Footer */}
+            <div className="p-3 border-t border-gray-100">
+                {!collapsed ? (
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <ClockIcon className="w-4 h-4" />
+                        <span>Last sync: 2 min ago</span>
                     </div>
-                </nav>
+                ) : (
+                    <div className="flex justify-center">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    </div>
+                )}
             </div>
         </div>
     );

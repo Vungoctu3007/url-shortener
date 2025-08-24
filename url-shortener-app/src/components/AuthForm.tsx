@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -6,6 +6,8 @@ import { login, register } from "../api/authService";
 import { useAuth } from "../contexts/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
+import { FaGoogle, FaFacebook, FaGithub } from "react-icons/fa";
+import api from "@/axios/axiosInstance";
 
 interface Props {
     mode: "login" | "register";
@@ -42,8 +44,9 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
             if (mode === "login") {
                 let res = await login(data.email, data.password);
                 if (res.message) {
+                    localStorage.setItem("isLogin", "1");
                     fetchUser();
-                    navigate("/");
+                    navigate("/home");
                 }
             } else {
                 await register(data.email, data.password);
@@ -52,6 +55,10 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
         } catch (err: any) {
             alert(err.response?.data?.message || "Something went wrong");
         }
+    };
+
+    const handleSocialLogin = (provider: string) => {
+        window.location.href = `https://url-shortener.ddev.site/api/v1/auth/${provider}`;
     };
 
     return (
@@ -121,6 +128,36 @@ const AuthForm: React.FC<Props> = ({ mode, onSuccess }) => {
                     ? "Sign In"
                     : "Register"}
             </button>
+
+            {/* Social login section */}
+            <div className="mt-4">
+                <p className="text-center text-sm text-gray-600 mb-3">
+                    Or continue with
+                </p>
+                <div className="flex justify-center gap-4">
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin("google")}
+                        className="p-3 border rounded-full hover:bg-gray-100"
+                    >
+                        <FaGoogle className="w-5 h-5 text-red-500" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin("facebook")}
+                        className="p-3 border rounded-full hover:bg-gray-100"
+                    >
+                        <FaFacebook className="w-5 h-5 text-blue-600" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleSocialLogin("github")}
+                        className="p-3 border rounded-full hover:bg-gray-100"
+                    >
+                        <FaGithub className="w-5 h-5 text-black" />
+                    </button>
+                </div>
+            </div>
 
             {mode === "login" && (
                 <p className="text-center text-sm mt-2">
