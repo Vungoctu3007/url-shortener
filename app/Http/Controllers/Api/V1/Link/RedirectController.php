@@ -15,6 +15,7 @@ class RedirectController extends Controller
     {
         $this->redirectService = $redirectService;
     }
+    
     public function index(Request $request)
     {
         $userId = $request->input('user_id');
@@ -36,11 +37,6 @@ class RedirectController extends Controller
                 'data' => $redirects,
             ]);
         } catch (\Throwable $e) {
-            \Log::error("Error fetching user redirects", [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
             return response()->json([
                 'status' => false,
                 'message' => 'Something went wrong. Please try again later.',

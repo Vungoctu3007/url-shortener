@@ -17,6 +17,7 @@ class Link extends Model
         'target',
         'user_id',
         'qr_url',
+        'clicks',
         'expires_at'
     ];
 

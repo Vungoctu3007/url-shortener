@@ -61,13 +61,13 @@ const menu: MenuItem[] = [
         badge: "New",
         description: "Real-time click data"
     },
-    {
-        label: "Settings",
-        icon: <Cog6ToothIcon className="w-5 h-5" />,
-        iconSolid: <Cog6ToothIconSolid className="w-5 h-5" />,
-        path: "/settings",
-        description: "Account preferences"
-    },
+    // {
+    //     label: "Settings",
+    //     icon: <Cog6ToothIcon className="w-5 h-5" />,
+    //     iconSolid: <Cog6ToothIconSolid className="w-5 h-5" />,
+    //     path: "/settings",
+    //     description: "Account preferences"
+    // },
 ];
 
 interface SidebarProps {
@@ -135,30 +135,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
                     </button>
                 </div>
             </div>
-
-            {/* Create new button */}
-            <div className="p-3">
-                <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2 group">
-                    <PlusIcon className="w-5 h-5 group-hover:rotate-90 transition-transform duration-200" />
-                    {!collapsed && (
-                        <span>Create New Link</span>
-                    )}
-                </button>
-            </div>
-
-            {/* Quick stats - when not collapsed */}
-            {!collapsed && (
-                <div className="mx-3 mb-3 p-3 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg">
-                    <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">Total Clicks</span>
-                        <span className="font-semibold text-gray-900">2,847</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm mt-1">
-                        <span className="text-gray-600">This Month</span>
-                        <span className="font-semibold text-green-600">+23%</span>
-                    </div>
-                </div>
-            )}
 
             {/* Navigation */}
             <nav className="flex-1 px-2 space-y-1 overflow-y-auto">

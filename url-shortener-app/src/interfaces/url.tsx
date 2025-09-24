@@ -6,8 +6,9 @@ export interface UrlShortenerParams {
 }
 
 export interface UrlShortenerResponse {
-    shortUrl: string;
+    shortUrl: string
     qrUrl: string
+    linkId: number
 }
 
 export interface urlItem {

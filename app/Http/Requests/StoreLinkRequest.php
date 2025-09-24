@@ -26,7 +26,7 @@ class StoreLinkRequest extends FormRequest
             'title' => 'nullable|string|max:255',
             'slug' => 'nullable|string|max:50|regex:/^[a-z0-9\-_]+$/|unique:links,slug',
             'expires_at' => 'nullable|date|after:now',
-            'user_id' => 'required|integer|exists:users,id'
+            'user_id' => 'integer|exists:users,id'
         ];
     }
 
@@ -47,7 +47,6 @@ class StoreLinkRequest extends FormRequest
             'slug.unique' => 'This custom slug is already taken. Please choose another one.',
             'expires_at.date' => 'The expiration date must be a valid date.',
             'expires_at.after' => 'The expiration date must be in the future.',
-            'user_id.required' => 'User ID is required.',
             'user_id.exists' => 'The specified user does not exist.'
         ];
     }

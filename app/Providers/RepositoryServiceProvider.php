@@ -17,6 +17,7 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(LinkRepositoryInterface::class, LinkRepository::class);
         $this->app->bind(LinkServiceInterface::class, concrete: LinkService::class);
+        $this->app->bind(RedirectRepositoryInterface::class, RedirectRepository::class);
     }
 
     /**

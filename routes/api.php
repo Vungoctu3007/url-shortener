@@ -6,6 +6,11 @@ use App\Http\Controllers\Api\V1\Link\LinkController;
 use App\Http\Controllers\Api\V1\Link\RedirectController;
 use App\Http\Controllers\Api\V1\Statistic\AnalyticsController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Broadcast;
+
+Route::get('/{slug}', [LinkController::class, 'redirect'])
+    ->where('slug', '[a-zA-Z0-9-_]+')
+    ->name('link.redirect');
 
 Route::prefix('v1')->group(function () {
     /**
@@ -21,6 +26,11 @@ Route::prefix('v1')->group(function () {
     Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])
         ->where('provider', 'google|facebook|github');
 
+    Broadcast::routes(['middleware' => ['jwt.cookie']]);
+
+    Route::post('/links', [LinkController::class, 'store']);
+    Route::get('/links/{id}/download-qr', [LinkController::class, 'downloadQr']);
+
     Route::middleware(['jwt.cookie'])->group(function () {
         Route::get('/auth/profile', [AuthController::class, 'profile']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
@@ -28,7 +38,7 @@ Route::prefix('v1')->group(function () {
         /**
          * LINK MANAGEMENT
          */
-        Route::apiResource('links', LinkController::class);
+        Route::apiResource('links', LinkController::class)->except(['store', 'downloadQr']);
 
         // Bulk operations for links
         Route::post('/links/bulk-delete', [LinkController::class, 'bulkDelete']);

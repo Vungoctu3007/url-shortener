@@ -28,6 +28,7 @@ import clsx from "clsx";
 
 import { useAuth } from "@/contexts/AuthProvider";
 import { shortenUrl } from "@/api/urlService";
+import linkService from "@/api/linkService";
 
 const UrlShortener: React.FC = () => {
     const { user } = useAuth();
@@ -36,6 +37,7 @@ const UrlShortener: React.FC = () => {
     const [slug, setSlug] = useState("");
     const [qrUrl, setQrUrl] = useState("");
     const [shortUrl, setShortUrl] = useState("");
+    const [linkId, setLinkId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
     const [showQR, setShowQR] = useState(false);
@@ -64,6 +66,7 @@ const UrlShortener: React.FC = () => {
                 title,
                 userId: user?.id,
             });
+            setLinkId(result.linkId);
             setShortUrl(result.shortUrl);
             setQrUrl(result.qrUrl);
         } catch (err: any) {
@@ -93,6 +96,19 @@ const UrlShortener: React.FC = () => {
         }
     };
 
+    const handleDownloadQr = async (id: number | null) => {
+        if (id === null) {
+          alert("Không tìm thấy link ID");
+          return;
+        }
+        try {
+          await linkService.downloadQrCode(id);
+        } catch (error) {
+          console.error(error);
+          alert("Không thể tải QR code");
+        }
+      };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
             {/* Header with floating animation */}
@@ -101,7 +117,7 @@ const UrlShortener: React.FC = () => {
                 <div className="relative flex flex-col items-center justify-center py-16 px-4 md:px-8">
                     <div className="flex items-center gap-3 mb-6 animate-bounce">
                         <SparklesIcon className="w-8 h-8 text-pink-500" />
-                        <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text text-center">
+                        <h1 className="text-4xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
                             Linkly
                         </h1>
                         <SparklesIcon className="w-8 h-8 text-blue-500" />
@@ -195,7 +211,7 @@ const UrlShortener: React.FC = () => {
                             </label>
                             <div className="flex items-center">
                                 <span className="px-4 py-4 bg-gray-100 text-gray-600 rounded-l-xl border-2 border-r-0 border-gray-200 text-sm">
-                                    link.ly/
+                                    {import.meta.env.VITE_SERVER_ENDPOINT}
                                 </span>
                                 <div
                                     className={clsx(
@@ -418,26 +434,7 @@ const UrlShortener: React.FC = () => {
                                     )}
                                 </div>
 
-                                <button
-                                    onClick={() => {
-                                        const canvas =
-                                            document.createElement("canvas");
-                                        const ctx = canvas.getContext("2d");
-                                        const img = new Image();
-                                        img.onload = () => {
-                                            canvas.width = img.width;
-                                            canvas.height = img.height;
-                                            ctx?.drawImage(img, 0, 0);
-                                            const link =
-                                                document.createElement("a");
-                                            link.download = `qr-code-${Date.now()}.png`;
-                                            link.href = canvas.toDataURL();
-                                            link.click();
-                                        };
-                                        img.src = qrUrl;
-                                    }}
-                                    className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-all transform hover:scale-105 shadow-lg"
-                                >
+                                <button onClick={() => handleDownloadQr(linkId)} className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-all transform hover:scale-105 shadow-lg">
                                     <ArrowDownTrayIcon className="w-5 h-5" />
                                     <span>Download QR</span>
                                 </button>

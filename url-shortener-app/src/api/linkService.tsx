@@ -191,33 +191,26 @@ class LinkService {
     }
 
     /**
-     * Download export data as CSV
+     * Download QR code
      */
-    downloadAsCSV(data: LinkData[], filename: string = 'links-export.csv'): void {
-        const headers = ['ID', 'Title', 'Short URL', 'Original URL', 'Clicks', 'Status', 'Created At', 'Expires At'];
-        const csvContent = [
-            headers.join(','),
-            ...data.map(link => [
-                link.id,
-                `"${(link.title || 'Untitled').replace(/"/g, '""')}"`,
-                link.short_url,
-                `"${link.target.replace(/"/g, '""')}"`,
-                link.clicks,
-                link.status,
-                link.created_at_formatted,
-                link.expires_at || 'Never'
-            ].join(','))
-        ].join('\n');
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    async downloadQrCode(id: number) {
+        const response = await api.get(`/links/${id}/download-qr`, {
+        responseType: 'blob', // 👈 nhận file blob
+        });
+    
+        // Tạo blob url
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+    
+        // Tạo thẻ <a> để trigger download
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `qr_${id}.png`; // tên file khi tải
+        document.body.appendChild(a);
+        a.click();
+    
+        // Dọn dẹp
+        a.remove();
+        window.URL.revokeObjectURL(url);
     }
 }
 

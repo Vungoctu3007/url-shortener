@@ -25,6 +25,7 @@ export const shortenUrl = async ({
     }
 
     return {
+        linkId: result.data.id,
         shortUrl: result.short_url,
         qrUrl: result.data.qr_url,
     };

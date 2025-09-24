@@ -13,6 +13,8 @@ class Redirect extends Model
         'link_id',
         'ip_address',
         'user_agent',
+        'device',
+        'browser',
         'referrer',
         'country',
     ];

@@ -465,13 +465,13 @@ const Statistics: React.FC = () => {
         <div className="p-6 max-w-7xl mx-auto w-full">
             {/* Header with controls */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-                <h2 className="text-3xl font-bold text-left bg-gradient-to-r from-pink-500 to-blue-500 text-transparent bg-clip-text">
+                <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
                     URL Statistics
                 </h2>
 
                 <div className="flex items-center gap-3">
                     {/* Export buttons */}
-                    <div className="flex gap-2">
+                    {/* <div className="flex gap-2">
                         <button
                             onClick={() => handleExport('json')}
                             disabled={exportLoading}
@@ -488,7 +488,7 @@ const Statistics: React.FC = () => {
                             <ArrowDownTrayIcon className="w-4 h-4" />
                             CSV
                         </button>
-                    </div>
+                    </div> */}
 
                     {/* Period selector */}
                     <div className="flex items-center gap-2">

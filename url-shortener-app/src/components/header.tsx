@@ -92,14 +92,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                    {/* Notifications - hidden on mobile */}
-                                    <Button variant="ghost" size="sm" className="hidden sm:flex p-2 relative">
-                                        <BellIcon className="h-5 w-5 text-gray-600" />
-                                        <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
-                                            3
-                                        </span>
-                                    </Button>
-
                                     {/* User info */}
                                     <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
                                         <div className="relative">

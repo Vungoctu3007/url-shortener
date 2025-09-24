@@ -26,7 +26,6 @@ class LogRedirectJob implements ShouldQueue
     public function handle()
     {
         try {
-            // Create the redirect record
             $redirect = Redirect::create([
                 'link_id' => $this->data['link_id'],
                 'ip_address' => $this->data['ip_address'],
@@ -35,20 +34,11 @@ class LogRedirectJob implements ShouldQueue
                 'country' => $this->data['country'],
             ]);
 
-            Log::info('Redirect logged successfully', $this->data);
-
-            // Get link and user info for cache invalidation
             $link = Link::find($this->data['link_id']);
 
             if ($link) {
-                // Invalidate analytics cache immediately after logging redirect
                 $analyticsService = app(LinkAnalyticsService::class);
                 $analyticsService->invalidateCacheOnNewRedirect($link->id, $link->user_id);
-
-                Log::info('Analytics cache invalidated for user', [
-                    'user_id' => $link->user_id,
-                    'link_id' => $link->id
-                ]);
             }
 
         } catch (\Exception $e) {

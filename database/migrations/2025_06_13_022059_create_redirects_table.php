@@ -14,11 +14,23 @@ return new class extends Migration
         Schema::create('redirects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('link_id')->constrained()->onDelete('cascade');
+            $table->index(['link_id']);
             $table->ipAddress('ip_address')->nullable();
             $table->string('user_agent')->nullable();
             $table->string('referrer')->nullable();
-            $table->string('country')->nullable();
+
+            $table->string('country', 100)->nullable();
+            $table->string('device', 50)->nullable();
+            $table->string('browser', 50)->nullable();
+
             $table->timestamps();
+
+            $table->index(['link_id', 'created_at']);
+            $table->index('created_at');
+            $table->index('country');
+            $table->index('device');
+            $table->index('browser');
+            $table->index('referrer');
         });
     }
 

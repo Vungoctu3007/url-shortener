@@ -80,12 +80,11 @@ class LinkRepository extends BaseRepository implements LinkRepositoryInterface
         $linkData = [
             'slug' => $data['slug'],
             'target' => $data['target'],
-            'user_id' => $data['user_id'],
+            'user_id' => $data['user_id'] ?? null,
             'expires_at' => $data['expires_at']
         ];
 
         if (!empty($data['title'])) {
-            Log::info($data['title']);
             $linkData['title'] = $data['title'];
         }
 

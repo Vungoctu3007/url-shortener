@@ -16,20 +16,28 @@ class JwtCookieMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {
-        try {
-            $token = $request->cookie('access_token');
+{
+    try {
+        $token = $request->cookie('access_token');
 
-            if (!$token) {
-                return response()->json(['error' => 'Token not provided'], 401);
-            }
-
-            // $request->headers->set('Authorization', 'Bearer ' . $token);
-            JWTAuth::setToken($token)->authenticate();  
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if (!$token) {
+            return response()->json(['error' => 'Token not provided'], 401);
         }
-        return $next($request);
+
+        // Thay vì chỉ authenticate, bạn nên gán user vào request
+        $user = JWTAuth::setToken($token)->authenticate();
+
+        if (!$user) {
+            return response()->json(['error' => 'Invalid token'], 401);
+        }
+
+        auth()->setUser($user); // Cho phép Broadcast::channel() nhận được $user
+    } catch (Exception $e) {
+        return response()->json(['error' => 'Unauthorized'], 401);
     }
+
+    return $next($request);
+}
+
 
 }

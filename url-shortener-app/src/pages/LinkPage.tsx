@@ -422,16 +422,9 @@ const LinkPage: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Links</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Links</h1>
                         <p className="text-gray-600 mt-1">Manage and track your shortened URLs</p>
                     </div>
-                    <button
-                        onClick={() => setShowCreateModal(true)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2 font-medium"
-                    >
-                        <Plus size={20} />
-                        <span>Create link</span>
-                    </button>
                 </div>
 
                 {/* Filters */}

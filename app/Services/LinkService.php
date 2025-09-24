@@ -2,8 +2,11 @@
 
 namespace App\Services;
 
+use App\Jobs\IncrementLinkClicks;
+use App\Jobs\LogRedirectJob;
 use App\Interfaces\Repositories\LinkRepositoryInterface;
 use App\Interfaces\Services\LinkServiceInterface;
+use App\Models\Redirect;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
@@ -15,6 +18,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Models\Link;
+use App\Events\ClickStreamEvent;
+use Illuminate\Support\Facades\Http;
 
 class LinkService extends BaseService implements LinkServiceInterface
 {
@@ -56,7 +63,6 @@ class LinkService extends BaseService implements LinkServiceInterface
             'orderBy' => $request->input('sort') ? explode(',', $request->input('sort')) : ['id', 'desc'],
         ];
 
-        // Add user_id filter
         if ($userId) {
             $params['condition']['user_id'] = $userId;
         }
@@ -69,14 +75,12 @@ class LinkService extends BaseService implements LinkServiceInterface
         $params = $this->paginateArgument($request, $userId);
         $links = $this->linkRepo->pagination($params);
 
-        // Transform the links to include status and formatted data
         $links->getCollection()->transform(function ($link) {
             $link->status = $link->expires_at && now()->greaterThan($link->expires_at) ? 'Inactive' : 'Active';
             $link->short_url = config('app.url') . '/' . $link->slug;
             $link->click_count = $link->clicks;
             $link->created_at_formatted = $link->created_at->format('Y-m-d H:i:s');
 
-            // Add user verification for extra security
             if (request()->user() && $link->user_id !== request()->user()->id) {
                 Log::warning("User {$link->user_id} tried to access link {$link->id} owned by user {$link->user_id}");
             }
@@ -138,7 +142,6 @@ class LinkService extends BaseService implements LinkServiceInterface
             return null;
         }
 
-        // If target URL changed, regenerate QR code
         if (isset($data['target']) && $data['target'] !== $link->target) {
             $shortUrl = config('app.url') . '/' . $link->slug;
             $fileName = 'qr_' . $link->slug . '.png';
@@ -205,7 +208,6 @@ class LinkService extends BaseService implements LinkServiceInterface
             return null;
         }
 
-        // Get analytics data
         $analytics = $this->getAnalytics($id);
 
         return array_merge($link->toArray(), $analytics);
@@ -376,5 +378,82 @@ class LinkService extends BaseService implements LinkServiceInterface
     public function getOriginalLink(string $slug): ?string
     {
         return $this->linkRepo->getOriginalLink($slug);
+    }
+
+    public function trackRedirect(Request $request, Link $link) {
+        $userAgent = $request->header('User-Agent');
+        
+        try {
+            $redirect = Redirect::create([
+                'link_id' => $link->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => $userAgent,
+                'referrer' => $request->header('Referer'),
+                'country' => $this->getCountryFromIp($request->ip()),
+                'browser' => $this->getBrowserFromUserAgent($userAgent),
+                'device' => $this->getDeviceFromUserAgent($userAgent)
+            ]);
+            
+        } catch (\Exception $e) {
+            throw $e;
+        }
+
+        dispatch(new IncrementLinkClicks($link->id));
+
+        broadcast(new ClickStreamEvent($redirect));
+        
+        return $redirect;
+    }
+
+    private function getCountryFromIp($ip): ?string
+    {
+        if ($this->isPrivateIp($ip)) {
+            return 'Local/Private';
+        }
+
+        try {
+            $response = Http::timeout(10)->get("http://ip-api.com/json/{$ip}", [
+                'fields' => 'status,country,countryCode,message'
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                if ($data['status'] === 'success') {
+                    return $data['country'];
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('GeoIP request failed', [
+                'ip' => $ip,
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return 'Unknown';
+    }
+
+    private function isPrivateIp($ip): bool
+    {
+        return !filter_var(
+            $ip, 
+            FILTER_VALIDATE_IP, 
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+    }
+
+    private function getBrowserFromUserAgent($userAgent): string
+    {
+        if (str_contains($userAgent, 'Chrome')) return 'Chrome';
+        if (str_contains($userAgent, 'Firefox')) return 'Firefox';
+        if (str_contains($userAgent, 'Safari') && !str_contains($userAgent, 'Chrome')) return 'Safari';
+        if (str_contains($userAgent, 'Edge')) return 'Edge';
+        return 'Unknown';
+    }
+
+    private function getDeviceFromUserAgent($userAgent): string
+    {
+        if (str_contains($userAgent, 'Mobile')) return 'Mobile';
+        if (str_contains($userAgent, 'Tablet')) return 'Tablet';
+        return 'Desktop';
     }
 }

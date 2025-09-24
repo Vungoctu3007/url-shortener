@@ -319,12 +319,12 @@ const DetailLinkPage: React.FC = () => {
                                     <div className="space-y-2">
                                         <div>
                                             <a
-                                                href={link.short_url}
+                                                href={`${link.short_url}?t=${Date.now()}`} 
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                                 className="text-blue-600 font-medium hover:underline text-base md:text-lg block break-all"
                                             >
-                                                {link.short_url.replace('https://', '').replace('http://', '')}
+                                                {link.short_url}
                                             </a>
                                         </div>
                                         <div>

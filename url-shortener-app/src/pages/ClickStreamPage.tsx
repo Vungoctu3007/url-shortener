@@ -39,7 +39,8 @@ const COUNTRY_FLAGS: CountryFlag = {
     'Brazil': '🇧🇷',
     'Russia': '🇷🇺',
     'South Korea': '🇰🇷',
-    'Unknown': '🌍'
+    'Unknown': '🌍',
+    'Local/Private': '🏠'
 };
 
 const DEVICE_ICONS = {
@@ -110,16 +111,31 @@ const ClickStream: React.FC = () => {
     }, []);
 
     const formatRedirects = useCallback((items: any[]): ClickData[] => {
-        return items.map((item) => ({
-            id: item.id,
-            time: item.created_at,
-            country: item.country || "Unknown",
-            browser: parseBrowser(item.user_agent),
-            device: parseDevice(item.user_agent),
-            referrer: formatReferrer(item.referrer),
-            formattedTime: formatTime(item.created_at),
-            link: item.link
-        }));
+        return items.map((item) => {
+            console.log('Processing item:', item);
+            console.log('Item link:', item.link);
+            console.log('Item link_id:', item.link_id);
+            
+            return {
+                id: item.id,
+                time: item.created_at,
+                slug: item.slug,
+                country: item.country || "Unknown",
+                browser: parseBrowser(item.user_agent),
+                device: parseDevice(item.user_agent),
+                referrer: formatReferrer(item.referrer),
+                formattedTime: formatTime(item.created_at),
+                link: item.link ? {
+                    id: item.link.id,
+                    short_code: item.link.slug,
+                    title: item.link.title || 'Untitled'
+                } : {
+                    id: item.link_id,
+                    short_code: item.link_slug || item.slug,
+                    title: item.link_title || 'Untitled'
+                }
+            };
+        });
     }, [formatTime, parseBrowser, parseDevice, formatReferrer]);
 
     // Intersection Observer setup
@@ -147,15 +163,16 @@ const ClickStream: React.FC = () => {
         setError(null);
 
         try {
-            // Sử dụng API thật từ RedirectController
             const res = await api.get("/redirects", {
                 params: {
                     limit: 20,
-                    user_id: user?.id // Theo code hiện tại của bạn
+                    user_id: user?.id
                 }
             });
 
             if (res.data.status || res.data.success) {
+                console.log('API Response Data:', res.data.data);
+                console.log('First item structure:', res.data.data[0]);
                 const data = formatRedirects(res.data.data);
                 setClicks(data);
                 setHasMore(data.length === 20);
@@ -221,36 +238,39 @@ const ClickStream: React.FC = () => {
         setupObserver();
     }, [setupObserver]);
 
-    // Real-time updates với Pusher
     useEffect(() => {
-        if (!isRealTime) return;
+        if (!isRealTime || !user?.id) return;
 
-        const channel = echo.channel("click-stream");
-
-        const listener = (e: any) => {
-            const click = e.redirect;
+        const channel = echo.private(`user-clicks.${user.id}`);
+        const listener = (event: any) => {
+            const clickData = event.click;
 
             const newClick: ClickData = {
-                id: click.id,
-                time: click.created_at,
-                country: click.country || "Unknown",
-                browser: parseBrowser(click.user_agent),
-                device: parseDevice(click.user_agent),
-                referrer: formatReferrer(click.referrer),
-                formattedTime: formatTime(click.created_at),
-                link: click.link
+                id: clickData.id,
+                time: clickData.timestamp, 
+                country: clickData.country || "Unknown",
+                browser: clickData.browser || "Unknown",
+                device: clickData.device || "Desktop",
+                referrer: clickData.referrer || "Direct",
+                formattedTime: formatTime(clickData.timestamp),
+                link: {
+                    id: clickData.link_id,
+                    short_code: clickData.link_slug,
+                    title: clickData.link_title || 'Untitled'
+                }
             };
-
-            setClicks((prev) => [newClick, ...prev.slice(0, 199)]); // Keep only latest 200
+            setClicks((prev) => [newClick, ...prev.slice(0, 199)]);
         };
 
-        channel.listen(".new-click", listener);
+        // Listen to the event
+        channel.listen('.new-click', listener);
 
+        // Cleanup
         return () => {
-            channel.stopListening(".new-click");
-            echo.leave("click-stream");
+            channel.stopListening('.new-click');
+            echo.leave(`user-clicks.${user.id}`);
         };
-    }, [isRealTime, parseBrowser, parseDevice, formatReferrer, formatTime]);
+    }, [isRealTime, user?.id, formatTime]);
 
     const memoizedClicks = useMemo(() => clicks, [clicks]);
 
@@ -280,7 +300,7 @@ const ClickStream: React.FC = () => {
                             Click Stream
                         </h2>
                         <p className="text-sm text-gray-500 mt-1">
-                            Real-time visitor activity
+                            Real-time visitor activity across all your links
                         </p>
                     </div>
                 </div>
@@ -338,7 +358,7 @@ const ClickStream: React.FC = () => {
                                             Country
                                         </div>
                                     </th>
-                                    <th className="text-left p-4 font-semibold text-gray-700 min-w-[80px] hidden sm:table-cell">
+                                    <th className="text-left p-4 font-semibold text-gray-700 min-w-[80px]">
                                         Browser
                                     </th>
                                     <th className="text-left p-4 font-semibold text-gray-700 min-w-[80px]">
@@ -347,13 +367,13 @@ const ClickStream: React.FC = () => {
                                             Device
                                         </div>
                                     </th>
-                                    <th className="text-left p-4 font-semibold text-gray-700 min-w-[120px] hidden md:table-cell">
+                                    <th className="text-left p-4 font-semibold text-gray-700 min-w-[120px]">
                                         <div className="flex items-center gap-2">
                                             <ExternalLink className="w-4 h-4" />
                                             Referrer
                                         </div>
                                     </th>
-                                    <th className="text-left p-4 font-semibold text-gray-700 min-w-[100px] hidden lg:table-cell">
+                                    <th className="text-left p-4 font-semibold text-gray-700 ">
                                         Link
                                     </th>
                                 </tr>
@@ -394,7 +414,7 @@ const ClickStream: React.FC = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="p-4 hidden sm:table-cell">
+                                            <td className="p-4">
                                                 <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
                                                     {click.browser}
                                                 </span>
@@ -409,10 +429,10 @@ const ClickStream: React.FC = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="p-4 hidden md:table-cell">
-                                                <div className="flex items-center gap-2">
+                                            <td className="p-4">
+                                                <div className="max-w-[120px]">
                                                     {click.referrer === 'Direct' ? (
-                                                        <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                                                        <span className="text-xs text-gray-500">
                                                             Direct
                                                         </span>
                                                     ) : (
@@ -423,16 +443,20 @@ const ClickStream: React.FC = () => {
                                                 </div>
                                             </td>
 
-                                            <td className="p-4 hidden lg:table-cell">
-                                                {click.link && (
+                                            <td className="p-4">
+                                                {click.link ? (
                                                     <div className="flex flex-col">
-                                                        <span className="text-xs font-medium text-gray-900 truncate">
-                                                            {click.link.title || click.link.short_code}
+                                                        <span className="font-medium text-gray-900 text-xs truncate max-w-[120px]">
+                                                            {click.link.title}
                                                         </span>
-                                                        <span className="text-xs text-gray-500">
+                                                        <span className="text-xs text-blue-600 mt-0.5">
                                                             /{click.link.short_code}
                                                         </span>
                                                     </div>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400">
+                                                        Unknown Link
+                                                    </span>
                                                 )}
                                             </td>
                                         </tr>
@@ -477,4 +501,3 @@ const ClickStream: React.FC = () => {
 };
 
 export default ClickStream;
-
